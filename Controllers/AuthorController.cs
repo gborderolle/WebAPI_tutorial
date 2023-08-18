@@ -226,7 +226,11 @@ namespace API_testing3.Controllers
                 }
 
                 // Aplicar el parche
-                //patchDto.ApplyTo(authorDto, ModelState); // ToDo arreglar!!
+                patchDto.ApplyTo(authorDto, error =>
+                {
+                    ModelState.AddModelError("", error.ErrorMessage);
+                });
+
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError($"Ocurrió un error en el servidor.");

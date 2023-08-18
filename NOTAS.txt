@@ -13,6 +13,13 @@ services.AddControllers().AddJsonOptions(x =>
 
 --
 
+AutoMapper
+1. Instalar paquetes:
+    a. AutoMapper (logo rojo)
+    b. AutoMapper.Extensions.Microsoft.DependencyInjection
+2. Se registra en Startup -> ConfigureServices()
+services.AddAutoMapper(typeof(MappingConfig));
+
 
 
 

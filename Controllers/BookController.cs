@@ -61,7 +61,7 @@ namespace API_testing3.Controllers
                     return BadRequest(_response);
                 }
 
-                var book = await _repositoryBook.Get(v => v.Id == id); // ToDo: agregar Include -> Author
+                var book = await _repositoryBook.Get(v => v.Id == id, includes: b => b.Author);
                 if (book == null)
                 {
                     _response.IsSuccess = false;
@@ -212,10 +212,10 @@ namespace API_testing3.Controllers
                 }
 
                 // Obtener el DTO existente
-                BookUpdateDto libroDto = _mapper.Map<BookUpdateDto>(await _repositoryBook.Get(v => v.Id == id, tracked: false));
+                BookUpdateDto bookDto = _mapper.Map<BookUpdateDto>(await _repositoryBook.Get(v => v.Id == id, tracked: false));
 
                 // Verificar si el libroDto existe
-                if (libroDto == null)
+                if (bookDto == null)
                 {
                     _logger.LogError($"No se encontró el libro = {id}.");
                     _response.IsSuccess = false;
@@ -224,7 +224,11 @@ namespace API_testing3.Controllers
                 }
 
                 // Aplicar el parche
-                //patchDto.ApplyTo(libroDto, ModelState);
+                patchDto.ApplyTo(bookDto, error =>
+                {
+                    ModelState.AddModelError("", error.ErrorMessage);
+                });
+
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError($"Ocurrió un error en el servidor.");
@@ -233,7 +237,7 @@ namespace API_testing3.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Book libro = _mapper.Map<Book>(libroDto);
+                Book libro = _mapper.Map<Book>(bookDto);
                 var updatedBook = await _repositoryBook.Update(libro);
                 _logger.LogInformation($"Se actualizó correctamente el libro = {id}.");
 

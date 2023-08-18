@@ -23,9 +23,16 @@ namespace API_testing3.Repository
             await Save();
         }
 
-        public async Task<T> Get(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+        public async Task<T> Get(Expression<Func<T, bool>>? filter = null, bool tracked = true, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbSet;
+
+            // Agregar las propiedades a incluir al query.
+            foreach (var includeProperty in includes)
+            {
+                query = query.Include(includeProperty);
+            }
+
             if (!tracked)
             {
                 query = query.AsNoTracking();

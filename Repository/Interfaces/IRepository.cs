@@ -7,7 +7,7 @@ namespace API_testing3.Repository.Interfaces
         Task Create(T entity);
         Task<List<T>> GetAll(Expression<Func<T, bool>>? filter = null);
         Task<List<T>> GetAllIncluding(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includeProperties);
-        Task<T> Get(Expression<Func<T, bool>>? filter = null, bool tracked = true);
+        Task<T> Get(Expression<Func<T, bool>>? filter = null, bool tracked = true, params Expression<Func<T, object>>[] includes);
         Task Remove(T entity);
         Task Save();
     }
