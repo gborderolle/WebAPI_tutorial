@@ -1,0 +1,7 @@
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.csproj.AssemblyReference.cache
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.GeneratedMSBuildEditorConfig.editorconfig
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.AssemblyInfoInputs.cache
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.AssemblyInfo.cs
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.csproj.CoreCompileInputs.cache
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.MvcApplicationPartsAssemblyInfo.cs
+D:\Documents\GitHub\API_testing3\API_testing3\obj\Debug\net6.0\API_testing3.MvcApplicationPartsAssemblyInfo.cache
