@@ -1,41 +1,43 @@
 ﻿using API_testing3.Context;
-using API_testing3.Models.Dto;
 using API_testing3.Models;
+using API_testing3.Models.Dto;
 using API_testing3.Repository.Interfaces;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 namespace API_testing3.Controllers
 {
     [ApiController]
-    [Route("api/book")]
-    public class BookController : ControllerBase
+    [Route("api/authors")]
+    public class AuthorsController : ControllerBase
     {
-        private readonly ILogger<BookController> _logger; // Logger para registrar eventos.
+        private readonly ILogger<AuthorsController> _logger; // Logger para registrar eventos.
         private readonly IMapper _mapper;
-        private readonly IBookRepository _repositoryBook; // Servicio que contiene la lógica principal de negocio para libros.
+        private readonly IAuthorRepository _repositoryAuthor; // Servicio que contiene la lógica principal de negocio para authors.
         protected APIResponse _response;
 
-        public BookController(ILogger<BookController> logger, IMapper mapper, IBookRepository repositoryBook)
+        public AuthorsController(ILogger<AuthorsController> logger, IMapper mapper, IAuthorRepository repositoryAuthor)
         {
             _logger = logger;
             _mapper = mapper;
-            _repositoryBook = repositoryBook;
+            _repositoryAuthor = repositoryAuthor;
             _response = new();
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<BookDto>))]
-        public async Task<ActionResult<List<BookDto>>> GetBooks()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AuthorDto>))]
+        public async Task<ActionResult<List<AuthorDto>>> GetAuthors()
         {
             try
             {
-                var bookList = await _repositoryBook.GetAll();
-                _logger.LogInformation("Obtener todas las libros.");
+                var authorList = await _repositoryAuthor.GetAllIncluding(null, a => a.BookList);
+                _logger.LogInformation("Obtener todas los autores.");
                 _response.StatusCode = HttpStatusCode.OK;
-                _response.Result = _mapper.Map<IEnumerable<BookDto>>(bookList);
+                _response.Result = _mapper.Map<IEnumerable<AuthorDto>>(authorList);
             }
             catch (Exception ex)
             {
@@ -45,11 +47,11 @@ namespace API_testing3.Controllers
             return Ok(_response);
         }
 
-        [HttpGet("{id:int}", Name = "GetBook")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [HttpGet("{id:int}", Name = "GetAuthor")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetBook(int id)
+        public async Task<ActionResult<APIResponse>> GetAuthor(int id)
         {
             try
             {
@@ -57,20 +59,49 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _logger.LogError($"Error al obtener el libro = {id}");
+                    _logger.LogError($"Error al obtener el autor = {id}");
                     return BadRequest(_response);
                 }
 
-                var book = await _repositoryBook.Get(v => v.Id == id, includes: b => b.Author);
-                if (book == null)
+                var author = await _repositoryAuthor.Get(v => v.Id == id);
+                if (author == null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
-                    _logger.LogError($"El libro ID = {id} no existe.");
+                    _logger.LogError($"El autor ID = {id} no existe.");
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<BookDto>(book);
+                _response.Result = _mapper.Map<AuthorDto>(author);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
+        [HttpGet("GetFirstAuthor")] // url completa: api/authors/GetFirstAuthor
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetFirstAuthor()
+        {
+            try
+            {
+                var author = await _repositoryAuthor.Get();
+                if (author == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    _logger.LogError($"No hay autores.");
+                    return NotFound(_response);
+                }
+
+                _response.Result = _mapper.Map<AuthorDto>(author);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -83,8 +114,8 @@ namespace API_testing3.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BookCreateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
-        public async Task<ActionResult<APIResponse>> CreateBook([FromBody] BookCreateDto libroCreateDto)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AuthorCreateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        public async Task<ActionResult<APIResponse>> CreateAuthor([FromBody] AuthorCreateDto authorCreateDto)
         {
             try
             {
@@ -95,7 +126,7 @@ namespace API_testing3.Controllers
                     _logger.LogError($"Ocurrió un error en el servidor.");
                     return BadRequest(ModelState);
                 }
-                if (await _repositoryBook.Get(v => v.Name.ToLower() == libroCreateDto.Name.ToLower()) != null)
+                if (await _repositoryAuthor.Get(v => v.Name.ToLower() == authorCreateDto.Name.ToLower()) != null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
@@ -104,17 +135,17 @@ namespace API_testing3.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Book modelo = _mapper.Map<Book>(libroCreateDto);
+                Author modelo = _mapper.Map<Author>(authorCreateDto);
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
-                await _repositoryBook.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente el libro = {modelo.Id}.");
+                await _repositoryAuthor.Create(modelo);
+                _logger.LogInformation($"Se creó correctamente la Author={modelo.Id}.");
 
-                _response.Result = _mapper.Map<BookCreateDto>(modelo);
+                _response.Result = _mapper.Map<AuthorCreateDto>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                return CreatedAtRoute("GetBook", new { id = modelo.Id }, _response); // objeto que devuelve (el que creó)
+                return CreatedAtRoute("GetAuthor", new { id = modelo.Id }, _response); // objeto que devuelve (el que creó)
             }
             catch (Exception ex)
             {
@@ -126,7 +157,7 @@ namespace API_testing3.Controllers
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteBook(int id)
+        public async Task<IActionResult> DeleteAuthor(int id)
         {
             try
             {
@@ -138,8 +169,8 @@ namespace API_testing3.Controllers
                     return BadRequest(_response);
                 }
 
-                var libro = await _repositoryBook.Get(v => v.Id == id);
-                if (libro == null)
+                var author = await _repositoryAuthor.Get(v => v.Id == id);
+                if (author == null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
@@ -147,8 +178,8 @@ namespace API_testing3.Controllers
                     return NotFound(_response);
                 }
 
-                await _repositoryBook.Remove(libro);
-                _logger.LogInformation($"Se eliminó correctamente el libro = {id}.");
+                await _repositoryAuthor.Remove(author);
+                _logger.LogInformation($"Se eliminó correctamente la Author={id}.");
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
             }
@@ -160,15 +191,15 @@ namespace API_testing3.Controllers
             return BadRequest(_response);
         }
 
-        // Endpoint para actualizar una libro por ID.
+        // Endpoint para actualizar una author por ID.
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] BookUpdateDto updatedBookDto)
+        public async Task<IActionResult> UpdateAuthor(int id, [FromBody] AuthorUpdateDto updatedAuthorDto)
         {
             try
             {
-                if (updatedBookDto == null || id != updatedBookDto.Id)
+                if (updatedAuthorDto == null || id != updatedAuthorDto.Id)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
@@ -176,9 +207,9 @@ namespace API_testing3.Controllers
                     return BadRequest(_response);
                 }
 
-                var updatedBook = await _repositoryBook.Update(_mapper.Map<Book>(updatedBookDto));
-                _logger.LogInformation($"Se actualizó correctamente el libro = {id}.");
-                _response.Result = _mapper.Map<BookUpdateDto>(updatedBook);
+                var updatedAuthor = await _repositoryAuthor.Update(_mapper.Map<Author>(updatedAuthorDto));
+                _logger.LogInformation($"Se actualizó correctamente la Author={id}.");
+                _response.Result = _mapper.Map<AuthorUpdateDto>(updatedAuthor);
                 _response.StatusCode = HttpStatusCode.OK;
 
                 return Ok(_response);
@@ -192,13 +223,13 @@ namespace API_testing3.Controllers
             return BadRequest(_response);
         }
 
-        // Endpoint para hacer una actualización parcial de una libro por ID.
+        // Endpoint para hacer una actualización parcial de una author por ID.
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
-        public async Task<IActionResult> UpdatePartialBook(int id, JsonPatchDocument<BookUpdateDto> patchDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        public async Task<IActionResult> UpdatePartialAuthor(int id, JsonPatchDocument<AuthorUpdateDto> patchDto)
         {
             try
             {
@@ -212,19 +243,19 @@ namespace API_testing3.Controllers
                 }
 
                 // Obtener el DTO existente
-                BookUpdateDto bookDto = _mapper.Map<BookUpdateDto>(await _repositoryBook.Get(v => v.Id == id, tracked: false));
+                AuthorUpdateDto authorDto = _mapper.Map<AuthorUpdateDto>(await _repositoryAuthor.Get(v => v.Id == id, tracked: false));
 
-                // Verificar si el libroDto existe
-                if (bookDto == null)
+                // Verificar si el authorDto existe
+                if (authorDto == null)
                 {
-                    _logger.LogError($"No se encontró el libro = {id}.");
+                    _logger.LogError($"No se encontró la Author={id}.");
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
                 // Aplicar el parche
-                patchDto.ApplyTo(bookDto, error =>
+                patchDto.ApplyTo(authorDto, error =>
                 {
                     ModelState.AddModelError("", error.ErrorMessage);
                 });
@@ -237,11 +268,11 @@ namespace API_testing3.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Book libro = _mapper.Map<Book>(bookDto);
-                var updatedBook = await _repositoryBook.Update(libro);
-                _logger.LogInformation($"Se actualizó correctamente el libro = {id}.");
+                Author author = _mapper.Map<Author>(authorDto);
+                var updatedAuthor = await _repositoryAuthor.Update(author);
+                _logger.LogInformation($"Se actualizó correctamente la Author={id}.");
 
-                _response.Result = _mapper.Map<BookUpdateDto>(updatedBook);
+                _response.Result = _mapper.Map<AuthorUpdateDto>(updatedAuthor);
                 _response.StatusCode = HttpStatusCode.NoContent;
 
                 return Ok(_response);
@@ -256,4 +287,3 @@ namespace API_testing3.Controllers
 
     }
 }
-

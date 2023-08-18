@@ -26,7 +26,7 @@ namespace API_testing3.Models
         [MaxLength(30)]
         public string Name { get; set; }
 
-        public List<Book> BookList { get; set; } //1..n
+        public List<Book> BookList { get; set; } //1..n Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13815698#notes
 
         public DateTime Creation { get; set; }
 

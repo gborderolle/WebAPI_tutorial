@@ -29,7 +29,7 @@ namespace API_testing3.Models
         public int AuthorId { get; set; }
 
         [ForeignKey("AuthorId")]
-        public Author Author { get; set; }//n..1
+        public Author Author { get; set; }//n..1 Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13815698#notes
 
         public DateTime Creation { get; set; }
 

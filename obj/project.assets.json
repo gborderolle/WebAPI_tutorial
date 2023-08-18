@@ -3867,11 +3867,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Gonzalo\\Documents\\GitHub\\API_testing3\\API_testing3.csproj",
+      "projectUniqueName": "D:\\Documents\\GitHub\\API_testing3\\API_testing3\\API_testing3.csproj",
       "projectName": "API_testing3",
-      "projectPath": "C:\\Users\\Gonzalo\\Documents\\GitHub\\API_testing3\\API_testing3.csproj",
+      "projectPath": "D:\\Documents\\GitHub\\API_testing3\\API_testing3\\API_testing3.csproj",
       "packagesPath": "C:\\Users\\Gonzalo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Gonzalo\\Documents\\GitHub\\API_testing3\\obj\\",
+      "outputPath": "D:\\Documents\\GitHub\\API_testing3\\API_testing3\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

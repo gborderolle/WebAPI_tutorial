@@ -4,8 +4,17 @@ Guía tutorial Udemy: https://www.udemy.com/course/construyendo-web-apis-restful
 // ------------------------------------
 
 TIPS:
-Error de relaciones entre lista y objeto (1..n y viceversa)
 
+Hacer siempre:
+En propiedades (XML) del proyecto (hacer doble click) -> poner disable en Nullable
+
+<Nullable>disable</Nullable> <!--Clase 18: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/28164624#overview-->
+
+
+--
+
+
+Error de relaciones entre lista y objeto (1..n y viceversa)
 
 Agregar en Startup -> ConfigureServices():
 services.AddControllers().AddJsonOptions(x =>

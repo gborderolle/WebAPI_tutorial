@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_testing3.Models.Dto
 {
@@ -19,6 +20,11 @@ namespace API_testing3.Models.Dto
         [Required]
         [MaxLength(30)]
         public string Name { get; set; }
+
+        public int AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public Author Author { get; set; }//n..1
 
         public DateTime Creation { get; set; }
 
