@@ -1,0 +1,20 @@
+﻿Versión: .NET 6
+Guía tutorial Udemy: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13815668#overview
+
+// ------------------------------------
+
+TIPS:
+Error de relaciones entre lista y objeto (1..n y viceversa)
+
+
+Agregar en Startup -> ConfigureServices():
+services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); // para arreglar errores de loop de relaciones 1..n y viceversa
+
+--
+
+
+
+
+
+// ------------------------------------
