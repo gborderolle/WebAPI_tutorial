@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using WebAPI_tutorial.Filters;
 
 namespace WebAPI_tutorial.Controllers
 {
@@ -77,10 +78,12 @@ namespace WebAPI_tutorial.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ServiceFilter(typeof(ExceptionFilter))]
         public async Task<ActionResult<APIResponse>> GetAuthor(int id)
         {
             try
             {
+                throw new NotImplementedException();
                 if (id <= 0)
                 {
                     _response.IsSuccess = false;

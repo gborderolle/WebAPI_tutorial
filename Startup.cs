@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebAPI_tutorial.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using WebAPI_tutorial.Filters;
 
 namespace WebAPI_tutorial
 {
@@ -24,9 +25,11 @@ namespace WebAPI_tutorial
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); // para arreglar errores de loop de relaciones 1..n y viceversa
-
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ExceptionFilter));
+            }
+            ).AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); // para arreglar errores de loop de relaciones 1..n y viceversa
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -46,6 +49,7 @@ namespace WebAPI_tutorial
             // AddSingleton: no cambia nunca
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
+            //services.AddTransient<ExceptionFilter>();
 
             services.AddResponseCaching();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
