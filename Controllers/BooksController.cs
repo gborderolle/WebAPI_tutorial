@@ -1,13 +1,13 @@
-﻿using API_testing3.Context;
-using API_testing3.Models.Dto;
-using API_testing3.Models;
-using API_testing3.Repository.Interfaces;
+﻿using WebAPI_tutorial.Context;
+using WebAPI_tutorial.Models.Dto;
+using WebAPI_tutorial.Models;
+using WebAPI_tutorial.Repository.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace API_testing3.Controllers
+namespace WebAPI_tutorial.Controllers
 {
     [ApiController]
     [Route("api/books")]
@@ -97,7 +97,7 @@ namespace API_testing3.Controllers
                     _logger.LogError($"Ocurrió un error en el servidor.");
                     return BadRequest(ModelState);
                 }
-                if (await _repositoryBook.Get(v => v.Name.ToLower() == libroCreateDto.Name.ToLower()) != null)
+                if (await _repositoryBook.Get(v => v.Title.ToLower() == libroCreateDto.Title.ToLower()) != null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;

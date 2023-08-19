@@ -1,8 +1,8 @@
-﻿using API_testing3.Models;
+﻿using WebAPI_tutorial.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace API_testing3.Context
+namespace WebAPI_tutorial.Context
 {
     public class ContextDB :DbContext
     {

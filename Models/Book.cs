@@ -1,12 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using WebAPI_tutorial.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API_testing3.Models
+namespace WebAPI_tutorial.Models
 {
     /// <summary>
     /// Entidad:
     /// FK tiene el Id externo y el objeto con un datanotation: fk del mismo Id externo
     /// Error de relaciones entre lista y objeto (1..n y viceversa): corrección en NOTAS
+    /// 
+    /// Validaciones personalizadas (Data Annotations):
+    /// Carpeta: Validations y 1 clase por validación, ej: FirstCharCapitalValidation.cs
+    /// clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13815782#notes
+    /// 
+    /// Validaciones generales (no de un atributo particular, sino del modelo (entidad)):
+    /// clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/26839696#notes
     /// 
     /// DTOs:
     /// La idea es que sean los que se devuelven al front (devuelve los endpoints); no devolver la entidad misma
@@ -22,9 +30,7 @@ namespace API_testing3.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
-        [MaxLength(30)]
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         public int AuthorId { get; set; }
 

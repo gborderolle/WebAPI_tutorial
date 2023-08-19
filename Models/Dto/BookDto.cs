@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API_testing3.Models.Dto
+namespace WebAPI_tutorial.Models.Dto
 {
     /// <summary>
     /// Entidad:
@@ -18,7 +18,7 @@ namespace API_testing3.Models.Dto
     public class BookDto
     {
         [Required]
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         public int AuthorId { get; set; }
 

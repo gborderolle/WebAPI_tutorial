@@ -1,10 +1,10 @@
-﻿using API_testing3.Context;
+﻿using WebAPI_tutorial.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Linq;
-using API_testing3.Repository.Interfaces;
+using WebAPI_tutorial.Repository.Interfaces;
 
-namespace API_testing3.Repository
+namespace WebAPI_tutorial.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {

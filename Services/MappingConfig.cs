@@ -1,8 +1,8 @@
-﻿using API_testing3.Models;
-using API_testing3.Models.Dto;
+﻿using WebAPI_tutorial.Models;
+using WebAPI_tutorial.Models.Dto;
 using AutoMapper;
 
-namespace API_testing3.Services
+namespace WebAPI_tutorial.Services
 {
     public class MappingConfig : Profile
     {

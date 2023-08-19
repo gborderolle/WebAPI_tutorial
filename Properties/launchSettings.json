@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "API_testing3": {
+    "WebAPI_tutorial": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

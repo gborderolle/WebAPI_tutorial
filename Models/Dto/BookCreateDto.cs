@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using WebAPI_tutorial.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API_testing3.Models.Dto
+namespace WebAPI_tutorial.Models.Dto
 {
     /// <summary>
     /// Entidad:
@@ -17,9 +18,10 @@ namespace API_testing3.Models.Dto
     /// </summary>
     public class BookCreateDto
     {
-        [Required]
-        [MaxLength(30)]
-        public string Name { get; set; }
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+        [FirstCharCapitalValidation]
+        public string Title { get; set; }
 
         public int AuthorId { get; set; }
 

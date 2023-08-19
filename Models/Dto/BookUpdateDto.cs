@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API_testing3.Models.Dto
+namespace WebAPI_tutorial.Models.Dto
 {
     /// <summary>
     /// Entidad:
@@ -21,7 +21,7 @@ namespace API_testing3.Models.Dto
 
         [Required]
         [MaxLength(30)]
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         [Required]
         public decimal? Fee { get; set; }

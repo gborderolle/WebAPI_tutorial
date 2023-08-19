@@ -1,4 +1,4 @@
-using API_testing3;
+using WebAPI_tutorial;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +9,8 @@ startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-startup.Configure(app, app.Environment);
+var serviceLogger = (ILogger<Startup>)app.Services.GetService(typeof(ILogger<Startup>));
+
+startup.Configure(app, app.Environment, serviceLogger);
 
 app.Run();

@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "API_testing3/1.0.0": {
+      "WebAPI_tutorial/1.0.0": {
         "dependencies": {
           "AutoMapper": "12.0.1",
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "12.0.1",
@@ -18,7 +18,7 @@
           "Swashbuckle.AspNetCore": "6.2.3"
         },
         "runtime": {
-          "API_testing3.dll": {}
+          "WebAPI_tutorial.dll": {}
         }
       },
       "AutoMapper/12.0.1": {
@@ -808,7 +808,7 @@
     }
   },
   "libraries": {
-    "API_testing3/1.0.0": {
+    "WebAPI_tutorial/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

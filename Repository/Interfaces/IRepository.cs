@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace API_testing3.Repository.Interfaces
+namespace WebAPI_tutorial.Repository.Interfaces
 {
     public interface IRepository<T> where T : class
     {

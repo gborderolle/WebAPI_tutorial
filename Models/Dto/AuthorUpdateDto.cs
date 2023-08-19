@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API_testing3.Models.Dto
+namespace WebAPI_tutorial.Models.Dto
 {
     /// <summary>
     /// Entidad:

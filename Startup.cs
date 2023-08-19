@@ -1,11 +1,13 @@
-﻿using API_testing3.Context;
-using API_testing3.Repository;
-using API_testing3.Repository.Interfaces;
-using API_testing3.Services;
+﻿using WebAPI_tutorial.Context;
+using WebAPI_tutorial.Repository;
+using WebAPI_tutorial.Repository.Interfaces;
+using WebAPI_tutorial.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using WebAPI_tutorial.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace API_testing3
+namespace WebAPI_tutorial
 {
     public class Startup
     {
@@ -30,7 +32,7 @@ namespace API_testing3
 
             // Configuración de la base de datos
             var isLocalConnectionString = Configuration.GetValue<bool>("ConnectionStrings:ConnectionString_isLocal");
-            var connectionStringKey = isLocalConnectionString ? "ConnectionString_apitesting3db_local" : "ConnectionString_apitesting3db_remote";
+            var connectionStringKey = isLocalConnectionString ? "ConnectionString_WebAPI_tutorial_local" : "ConnectionString_WebAPI_tutorial_remote";
             services.AddDbContext<ContextDB>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString(connectionStringKey));
@@ -38,18 +40,37 @@ namespace API_testing3
 
             services.AddAutoMapper(typeof(MappingConfig));
 
-            // Registro de servicios
+            // Registro de servicios 
+            // AddTransient: cambia dentro del contexto
+            // AddScoped: se mantiene dentro del contexto (mejor para los servicios)
+            // AddSingleton: no cambia nunca
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
+
+            services.AddResponseCaching();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         }
 
         /// <summary>
         /// Configuración del Middleware
+        /// Middlewares son los métodos "Use..()"
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            // Middleware customizado: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/26839760#notes
+            app.UseLogResponseHTTP();
+
+            // Middleware para intervenir en la ejecución
+            app.Map("/exitRoute", app => // si entra una url "ruta1" se ejecuta
+            {
+                app.Run(async context =>
+                {
+                    await context.Response.WriteAsync("Estoy interceptando la tubería de ejecución.");
+                });
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();

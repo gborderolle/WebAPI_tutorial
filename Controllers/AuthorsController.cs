@@ -1,15 +1,16 @@
-﻿using API_testing3.Context;
-using API_testing3.Models;
-using API_testing3.Models.Dto;
-using API_testing3.Repository.Interfaces;
+﻿using WebAPI_tutorial.Context;
+using WebAPI_tutorial.Models;
+using WebAPI_tutorial.Models.Dto;
+using WebAPI_tutorial.Repository.Interfaces;
 using AutoMapper;
 using Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
-namespace API_testing3.Controllers
+namespace WebAPI_tutorial.Controllers
 {
     [ApiController]
     [Route("api/authors")]
@@ -42,6 +43,13 @@ namespace API_testing3.Controllers
         /// 
         /// APIResponse: estandariza las respuestas con mensajes tipo http además de lo solicitado
         /// 
+        /// Model binding: para recibir parámetros puede ser:
+        /// Como parte de la url con "/" (sin nada): no especifica cómo llega. ej: GetAuthor(int id) --> "https://localhost:7003/api/authors/12"
+        /// FromBody: ej: GetAuthor([FromBody] int id) --> "id va oculto en el body"
+        /// FromHeader: ej: GetAuthor([FromHeader] int id) --> "id va oculto en el header"
+        /// FromQuery: desde el QueryString. ej: GetAuthor([FromQuery] int id) --> ".com?id=12"
+        /// "combinación": combina varios tipos de params. ej: GetAuthor([FromHeader] int id, [FromQuery] string nombre) --> ".com?nombre=felipe"
+        /// FromForm: [FromForm] para recibir archivos
         /// </summary>
         /// <returns></returns>
         [HttpGet] // url completa: https://localhost:7003/api/authors/
@@ -244,8 +252,8 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _logger.LogError("El nombre ya existe en el sistema");
-                    ModelState.AddModelError("NameAlreadyExists", "El nombre ya existe en el sistema.");
+                    _logger.LogError($"El nombre {authorCreateDto.Name} ya existe en el sistema");
+                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {authorCreateDto.Name} ya existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
@@ -254,12 +262,13 @@ namespace API_testing3.Controllers
                 modelo.Update = DateTime.Now;
 
                 await _repositoryAuthor.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la Author={modelo.Id}.");
+                _logger.LogInformation($"Se creó correctamente el autor Id:{modelo.Id}.");
 
                 _response.Result = _mapper.Map<AuthorCreateDto>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                return CreatedAtRoute("GetAuthor", new { id = modelo.Id }, _response); // objeto que devuelve (el que creó)
+                // Cuidado que exista un endpoint con la misma firma
+                return CreatedAtRoute("GetAuthorById", new { id = modelo.Id }, _response); // objeto que devuelve (el que creó). 
             }
             catch (Exception ex)
             {
@@ -279,7 +288,7 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _logger.LogError($"Datos de entrada no válidos: {id}.");
+                    _logger.LogError($"El Id {id} es inválido.");
                     return BadRequest(_response);
                 }
 
@@ -288,12 +297,12 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
-                    _logger.LogError($"Registro no encontrado: {id}.");
+                    _logger.LogError($"Autor no encontrado, Id: {id}.");
                     return NotFound(_response);
                 }
 
                 await _repositoryAuthor.Remove(author);
-                _logger.LogInformation($"Se eliminó correctamente la Author={id}.");
+                _logger.LogInformation($"Se eliminó correctamente el autor Id:{id}.");
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
             }
@@ -317,12 +326,12 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _logger.LogError($"Datos de entrada no válidos: {id}.");
+                    _logger.LogError($"El Id {id} es inválido.");
                     return BadRequest(_response);
                 }
 
                 var updatedAuthor = await _repositoryAuthor.Update(_mapper.Map<Author>(updatedAuthorDto));
-                _logger.LogInformation($"Se actualizó correctamente la Author={id}.");
+                _logger.LogInformation($"Se actualizó correctamente el autor Id:{id}.");
                 _response.Result = _mapper.Map<AuthorUpdateDto>(updatedAuthor);
                 _response.StatusCode = HttpStatusCode.OK;
 
@@ -350,7 +359,7 @@ namespace API_testing3.Controllers
                 // Validar entrada
                 if (patchDto == null || id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada no válidos: {id}.");
+                    _logger.LogError($"El Id {id} es inválido.");
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -362,7 +371,7 @@ namespace API_testing3.Controllers
                 // Verificar si el authorDto existe
                 if (authorDto == null)
                 {
-                    _logger.LogError($"No se encontró la Author={id}.");
+                    _logger.LogError($"Autor no encontrado, Id: {id}.");
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -384,7 +393,7 @@ namespace API_testing3.Controllers
 
                 Author author = _mapper.Map<Author>(authorDto);
                 var updatedAuthor = await _repositoryAuthor.Update(author);
-                _logger.LogInformation($"Se actualizó correctamente la Author={id}.");
+                _logger.LogInformation($"Se actualizó correctamente el autor Id:{id}.");
 
                 _response.Result = _mapper.Map<AuthorUpdateDto>(updatedAuthor);
                 _response.StatusCode = HttpStatusCode.NoContent;

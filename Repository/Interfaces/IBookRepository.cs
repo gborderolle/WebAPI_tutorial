@@ -1,6 +1,6 @@
-﻿using API_testing3.Models;
+﻿using WebAPI_tutorial.Models;
 
-namespace API_testing3.Repository.Interfaces
+namespace WebAPI_tutorial.Repository.Interfaces
 {
     public interface IBookRepository : IRepository<Book>
     {

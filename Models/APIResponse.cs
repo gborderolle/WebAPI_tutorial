@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace API_testing3.Models
+namespace WebAPI_tutorial.Models
 {
     public class APIResponse
     {

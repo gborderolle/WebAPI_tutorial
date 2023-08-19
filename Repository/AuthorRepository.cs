@@ -1,9 +1,9 @@
-﻿using API_testing3.Context;
-using API_testing3.Models;
-using API_testing3.Repository.Interfaces;
+﻿using WebAPI_tutorial.Context;
+using WebAPI_tutorial.Models;
+using WebAPI_tutorial.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace API_testing3.Repository
+namespace WebAPI_tutorial.Repository
 {
     public class AuthorRepository : Repository<Author>, IAuthorRepository
     {

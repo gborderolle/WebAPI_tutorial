@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace API_testing3.Migrations
+namespace WebAPI_tutorial.Migrations
 {
     /// <inheritdoc />
-    public partial class migraciones : Migration
+    public partial class ajustes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace API_testing3.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Creation = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -34,7 +34,7 @@ namespace API_testing3.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     Creation = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update = table.Column<DateTime>(type: "datetime2", nullable: false)
