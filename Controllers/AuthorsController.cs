@@ -28,7 +28,25 @@ namespace API_testing3.Controllers
             _response = new();
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Tipos de retorno:
+        /// 1. Tipo de dato puro síncrono: List<AutorDto>: no sirve
+        /// 2. Tipo de dato puro síncrono: ActionResult<List<AutorDto>>: permite retornar objetos controlados: ResultOk() etc
+        /// 3. Tipo de dato puro asíncrono: Task<ActionResult<List<AutorDto>>>: es asíncrono: no espera al método para seguir la ejecución
+        /// 4. IActionResult: está depracated, no se usa más.
+        /// 
+        /// Programación síncrona
+        /// Task: retorna void
+        /// Task<T>: retorna un tipo de dato T
+        /// Sólo usar síncrona cuando el método se conecta con otra API o con la BD: Task, async y await.
+        /// 
+        /// APIResponse: estandariza las respuestas con mensajes tipo http además de lo solicitado
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet] // url completa: https://localhost:7003/api/authors/
+        [HttpGet("list")] // url completa: https://localhost:7003/api/authors/list
+        [HttpGet("/list")] // url completa: https://localhost:7003/list
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AuthorDto>))]
         public async Task<ActionResult<List<AuthorDto>>> GetAuthors()
         {
@@ -47,7 +65,7 @@ namespace API_testing3.Controllers
             return Ok(_response);
         }
 
-        [HttpGet("{id:int}", Name = "GetAuthor")]
+        [HttpGet("{id:int}", Name = "GetAuthorById")] // url completa: https://localhost:7003/api/authors/1
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,7 +77,7 @@ namespace API_testing3.Controllers
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _logger.LogError($"Error al obtener el autor = {id}");
+                    _logger.LogError($"Error al obtener el autor ID = {id}");
                     return BadRequest(_response);
                 }
 
@@ -70,6 +88,102 @@ namespace API_testing3.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     _logger.LogError($"El autor ID = {id} no existe.");
                     return NotFound(_response);
+                }
+
+                _response.Result = _mapper.Map<AuthorDto>(author);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
+        [HttpGet("{name}", Name = "GetAuthorByName")] // url completa: https://localhost:7003/api/authors/gonzalo
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAuthor(string name)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _logger.LogError($"Error al obtener el autor nombre = {name}");
+                    return BadRequest(_response);
+                }
+
+                var author = await _repositoryAuthor.Get(v => v.Name.ToLower().Contains(name.ToLower()));
+                if (author == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    _logger.LogError($"El autor nombre = {name} no existe.");
+                    return NotFound(_response);
+                }
+
+                _response.Result = _mapper.Map<AuthorDto>(author);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
+        /// <summary>
+        /// Caso: dos parámetros
+        /// parámetro int: {id:int} (el tipo de dato no sirve para string)
+        /// parámetro opcional: {name?}
+        /// parámetro con valor por defecto: {name=luis}
+        /// 
+        /// Los parámetros tienen que declararse en la entrada de variables del método también
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet("{id:int}/{name}", Name = "GetAuthorByIdOrName")] // url completa: https://localhost:7003/api/authors/1/gonzalo
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> GetAuthor(int id, string name)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _logger.LogError($"Error al obtener el autor ID = {id}");
+                    return BadRequest(_response);
+                }
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _logger.LogError($"Error al obtener el autor nombre = {name}");
+                    return BadRequest(_response);
+                }
+
+                var author = await _repositoryAuthor.Get(v => v.Id == id);
+                if (author == null)
+                {
+                    author = await _repositoryAuthor.Get(v => v.Name.Contains(name));
+                    if (author == null)
+                    {
+                        _response.IsSuccess = false;
+                        _response.StatusCode = HttpStatusCode.NotFound;
+                        _logger.LogError($"El autor no existe.");
+                        return NotFound(_response);
+                    }
                 }
 
                 _response.Result = _mapper.Map<AuthorDto>(author);
@@ -157,7 +271,7 @@ namespace API_testing3.Controllers
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteAuthor(int id)
+        public async Task<ActionResult> DeleteAuthor(int id)
         {
             try
             {
@@ -195,7 +309,7 @@ namespace API_testing3.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateAuthor(int id, [FromBody] AuthorUpdateDto updatedAuthorDto)
+        public async Task<ActionResult> UpdateAuthor(int id, [FromBody] AuthorUpdateDto updatedAuthorDto)
         {
             try
             {
@@ -229,7 +343,7 @@ namespace API_testing3.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthorUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
-        public async Task<IActionResult> UpdatePartialAuthor(int id, JsonPatchDocument<AuthorUpdateDto> patchDto)
+        public async Task<ActionResult> UpdatePartialAuthor(int id, JsonPatchDocument<AuthorUpdateDto> patchDto)
         {
             try
             {
