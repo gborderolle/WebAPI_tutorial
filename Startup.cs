@@ -1,12 +1,12 @@
 ﻿using WebAPI_tutorial.Context;
 using WebAPI_tutorial.Repository;
 using WebAPI_tutorial.Repository.Interfaces;
-using WebAPI_tutorial.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebAPI_tutorial.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WebAPI_tutorial.Filters;
+using WebAPI_tutorial.Utilities;
 
 namespace WebAPI_tutorial
 {
@@ -27,6 +27,7 @@ namespace WebAPI_tutorial
         {
             services.AddControllers(options =>
             {
+                // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816116#notes
                 options.Filters.Add(typeof(ExceptionFilter));
             }
             ).AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); // para arreglar errores de loop de relaciones 1..n y viceversa
@@ -41,15 +42,19 @@ namespace WebAPI_tutorial
                 options.UseSqlServer(Configuration.GetConnectionString(connectionStringKey));
             });
 
-            services.AddAutoMapper(typeof(MappingConfig));
+            services.AddAutoMapper(typeof(Startup));
 
             // Registro de servicios 
+            // --------------
+
             // AddTransient: cambia dentro del contexto
             // AddScoped: se mantiene dentro del contexto (mejor para los servicios)
             // AddSingleton: no cambia nunca
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
-            //services.AddTransient<ExceptionFilter>();
+            services.AddHostedService<WriteInFileThread>(); //Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816118#notes
+
+            // --------------
 
             services.AddResponseCaching();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
@@ -83,6 +88,7 @@ namespace WebAPI_tutorial
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseResponseCaching();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

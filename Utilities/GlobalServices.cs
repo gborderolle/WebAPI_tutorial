@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace WebAPI_tutorial.Services
+namespace WebAPI_tutorial.Utilities
 {
     public static class GlobalServices
     {

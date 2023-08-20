@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using static System.Net.Mime.MediaTypeNames;
-using WebAPI_tutorial.Services;
+using WebAPI_tutorial.Utilities;
 
 namespace WebAPI_tutorial.Middlewares
 {

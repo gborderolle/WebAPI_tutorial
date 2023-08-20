@@ -3,10 +3,10 @@
 namespace WebAPI_tutorial.Filters
 {
     /// <summary>
-    /// Los Filtros ejecutan código en determinado momento del sistema
+    /// Los Filtros ejecutan código en determinado momento del sistema:
     /// Ej: Filtros de acción: inicio y fin de ejecución de endpoints
     /// Ej: Filtros de autorización
-    /// Ej: Filtros de excepción
+    /// Ej: Filtros de excepción: captura todas las excepciones y registra en el log
     /// Ej: Filtros de recursos
     /// 
     /// Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816114#notes

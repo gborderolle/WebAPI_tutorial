@@ -1,5 +1,5 @@
 ﻿using WebAPI_tutorial.Context;
-using WebAPI_tutorial.Models.Dto;
+using WebAPI_tutorial.Models.DTOs;
 using WebAPI_tutorial.Models;
 using WebAPI_tutorial.Repository.Interfaces;
 using AutoMapper;
@@ -29,15 +29,15 @@ namespace WebAPI_tutorial.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<BookDto>))]
-        public async Task<ActionResult<List<BookDto>>> GetBooks()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<BookDTO>))]
+        public async Task<ActionResult<List<BookDTO>>> GetBooks()
         {
             try
             {
                 var bookList = await _repositoryBook.GetAll(includes: b => b.Author); // incluye los autores de cada libro
                 _logger.LogInformation("Obtener todas las libros.");
                 _response.StatusCode = HttpStatusCode.OK;
-                _response.Result = _mapper.Map<IEnumerable<BookDto>>(bookList);
+                _response.Result = _mapper.Map<IEnumerable<BookDTO>>(bookList);
             }
             catch (Exception ex)
             {
@@ -48,7 +48,7 @@ namespace WebAPI_tutorial.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetBook")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookDTO))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetBook(int id)
@@ -72,7 +72,7 @@ namespace WebAPI_tutorial.Controllers
                     return NotFound(_response);
                 }
 
-                _response.Result = _mapper.Map<BookDto>(book);
+                _response.Result = _mapper.Map<BookDTO>(book);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -173,9 +173,9 @@ namespace WebAPI_tutorial.Controllers
 
         // Endpoint para actualizar una libro por ID.
         [HttpPut("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDTO))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] BookUpdateDto updatedBookDto)
+        public async Task<IActionResult> UpdateBook(int id, [FromBody] BookUpdateDTO updatedBookDto)
         {
             try
             {
@@ -189,7 +189,7 @@ namespace WebAPI_tutorial.Controllers
 
                 var updatedBook = await _repositoryBook.Update(_mapper.Map<Book>(updatedBookDto));
                 _logger.LogInformation($"Se actualizó correctamente el libro = {id}.");
-                _response.Result = _mapper.Map<BookUpdateDto>(updatedBook);
+                _response.Result = _mapper.Map<BookUpdateDTO>(updatedBook);
                 _response.StatusCode = HttpStatusCode.OK;
 
                 return Ok(_response);
@@ -208,8 +208,8 @@ namespace WebAPI_tutorial.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDto))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
-        public async Task<IActionResult> UpdatePartialBook(int id, JsonPatchDocument<BookUpdateDto> patchDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookUpdateDTO))] // tipo de dato del objeto de la respuesta, siempre devolver DTO
+        public async Task<IActionResult> UpdatePartialBook(int id, JsonPatchDocument<BookUpdateDTO> patchDto)
         {
             try
             {
@@ -223,7 +223,7 @@ namespace WebAPI_tutorial.Controllers
                 }
 
                 // Obtener el DTO existente
-                BookUpdateDto bookDto = _mapper.Map<BookUpdateDto>(await _repositoryBook.Get(v => v.Id == id, tracked: false));
+                BookUpdateDTO bookDto = _mapper.Map<BookUpdateDTO>(await _repositoryBook.Get(v => v.Id == id, tracked: false));
 
                 // Verificar si el libroDto existe
                 if (bookDto == null)
@@ -252,7 +252,7 @@ namespace WebAPI_tutorial.Controllers
                 var updatedBook = await _repositoryBook.Update(libro);
                 _logger.LogInformation($"Se actualizó correctamente el libro = {id}.");
 
-                _response.Result = _mapper.Map<BookUpdateDto>(updatedBook);
+                _response.Result = _mapper.Map<BookUpdateDTO>(updatedBook);
                 _response.StatusCode = HttpStatusCode.NoContent;
 
                 return Ok(_response);
